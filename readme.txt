@@ -1,4 +1,1 @@
-A visual representation of AVL trees and Binary Search trees
-using the p5 javascript library.
-
-Notes/Reflections:
+A visual representation of Binary Search Trees, AVL trees, Red Black trees, and Binary Min Heaps using the p5 javascript library.

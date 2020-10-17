@@ -1,8 +1,8 @@
 import BST from "./BST.js";
 
 class AVL extends BST{
-  constructor(nodeD){
-    super(nodeD);
+  constructor(){
+    super();
   }
 
   //gets tree height

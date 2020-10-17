@@ -1,9 +1,8 @@
 import treeNode from "./TreeNode.js";
 
 class BST{
-  constructor(nodeD){
+  constructor(){
     this.root = null;
-    this.nodeDia = nodeD;
   }
 
   insert(value){

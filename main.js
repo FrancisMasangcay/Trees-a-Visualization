@@ -1,7 +1,9 @@
-//TO DO add RB tree functionality and Heap
+//TO DO add RB tree functionality
+//TO DO write notes on AVL and BST parts of project
 
 import AVL from "./classes/AVL.js";
 import BST from "./classes/BST.js";
+import MinHeap from "./classes/Heap.js";
 
 //get document nodes and attributes
 const s = document.getElementById("p5-sketch");
@@ -10,8 +12,9 @@ const _height = s.clientHeight;
 //set node diameter for trees
 const nodeDia = _width / 25;
 
-var AVLTree = new AVL(nodeDia);
-var BSTree = new BST(nodeDia);
+var AVLTree = new AVL();
+var BSTree = new BST();
+var Heap = new MinHeap();
 
 
 /**
@@ -49,7 +52,8 @@ const drawStructures = (c) => {
             //Draw Red Black Tree
             break;
           case 3:
-            //Draw Red Black Tree
+            //Draw Heap Tree
+            drawTree(_width / 2, _width / 11, Heap.root);
             break;
         }
       }
@@ -71,13 +75,13 @@ const drawButtons = (b) => {
     insertBtn.elt.onclick = (e) => {
       insert(i_input);
     };
-    let i_elts = [insertBtn, i_input];
+    var i_elts = [insertBtn, i_input];
     const insertDiv = createDiv(b, i_elts);
     insertDiv.parent("inputs");
     
     //delete btn
-    let delBtn = b.createButton("Delete");
-    let d_input = b.createInput("");
+    var delBtn = b.createButton("Delete");
+    var d_input = b.createInput("");
     d_input.elt.onkeydown = (e) => {
       if(e.key === "Enter"){
         _delete(d_input);
@@ -86,7 +90,7 @@ const drawButtons = (b) => {
     delBtn.elt.onclick = (e) => {
       _delete(d_input);
     };
-    let d_elts = [delBtn, d_input];
+    var d_elts = [delBtn, d_input];
     const delDiv = createDiv(b, d_elts);
     delDiv.parent("inputs");
     //create the control buttons
@@ -97,6 +101,9 @@ const drawButtons = (b) => {
     let cntrl = [bst, avl, rb, heap];
 
     bst.mousePressed(() => {
+      d_input.elt.readOnly = false;
+      d_input.elt.style = "font-size: 1.25rem";
+      d_input.elt.placeholder = "";
       dataStructures[0] = 1;
       bst.elt.classList.add('selected');
       for(let i = 1; i < cntrl.length; i++){
@@ -111,6 +118,9 @@ const drawButtons = (b) => {
     bst.elt.classList.add('selected');
 
     avl.mousePressed(() => {
+      d_input.elt.readOnly = false;
+      d_input.elt.style = "font-size: 1.25rem";
+      d_input.elt.placeholder = "";
       dataStructures[1] = 1;
       avl.elt.classList.add('selected');
       for(let i = 0; i < cntrl.length; i++){
@@ -122,6 +132,9 @@ const drawButtons = (b) => {
       structure.redraw();
     });
     rb.mousePressed(() => {
+      d_input.elt.readOnly = false;
+      d_input.elt.style = "font-size: 1.25rem";
+      d_input.elt.placeholder = "";
       dataStructures[2] = 1;
       rb.elt.classList.add('selected');
       for(let i = 0; i < cntrl.length; i++){
@@ -133,6 +146,9 @@ const drawButtons = (b) => {
       structure.redraw();
     });
     heap.mousePressed(() => {
+      d_input.elt.readOnly = true;
+      d_input.elt.style = "font-size: 1.1rem";
+      d_input.elt.placeholder = "Heap Root";
       dataStructures[3] = 1;
       heap.elt.classList.add('selected');
       for(let i = 0; i < cntrl.length; i++){
@@ -175,7 +191,7 @@ function insert(inputField){
             //RedBlack Tree insert
             break;
           case 3:
-            //Heap Insert
+            Heap.insert(value);
             break;
         }
       }
@@ -201,11 +217,16 @@ function _delete(inputField){
             //RedBlack Tree insert
             break;
           case 3:
-            //Heap Insert
+            Heap.delete();
             break;
         }
       }
     }
+    inputField.value("");
+    structure.redraw();
+  }
+  else if(dataStructures[3] == 1){
+    Heap.delete();
     inputField.value("");
     structure.redraw();
   }
