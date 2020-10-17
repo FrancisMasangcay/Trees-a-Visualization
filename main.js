@@ -1,4 +1,5 @@
 //TO DO add find logic to buttons
+//TO DO add binary search tree drawing functionality
 //TO DO implement progressive animations
 //TO DO implement mutiple canvases 
 
@@ -35,10 +36,28 @@ const drawStructures = (c) => {
   }
 
   c.draw = () => {
-    c.background('white');
+    c.clear();
+    c.background("white");
     //draw root node in center along horizontal and space each node 1/11 
     //of container width away from each other
-    drawTree(_width / 2, _width / 11, AVLTree.root);
+    for(var i = 0; i < dataStructures.length; i++){
+      if(dataStructures[i] == 1){
+        switch(i){
+          case 0:
+            drawTree(_width / 2, _width / 11, BSTree.root);
+            break;
+          case 1:
+            drawTree(_width / 2, _width / 11, AVLTree.root);
+            break;
+          case 2:
+            //Draw Red Black Tree
+            break;
+          case 3:
+            //Draw Red Black Tree
+            break;
+        }
+      }
+    }
   }
 }
 
@@ -112,7 +131,7 @@ const drawButtons = (b) => {
       bst.elt.classList.toggle('selected');
     });
     let avl = b.createButton("AVL Tree");
-    
+
     //set default selected tree type to AVL
     dataStructures[1] = 1; 
     avl.elt.classList.add('selected');
@@ -137,27 +156,27 @@ const drawButtons = (b) => {
     cntrlDiv.parent("controls");
   }
 
-  b.draw = () => {
-    b.clear();
-    for(var i = 0; i < dataStructures.length; i++){
-      if(dataStructures[i] == 1){
-        switch(i){
-          case 0:
-            drawTree(_width / 2, _width / 11, BSTree.root);
-            break;
-          case 1:
-            drawTree(_width / 2, _width / 11, AVLTree.root);
-            break;
-          case 2:
-            //Draw Red Black Tree
-            break;
-          case 3:
-            //Draw Red Black Tree
-            break;
-        }
-      }
-    }
-  }
+  // b.draw = () => {
+  //   b.clear();
+  //   for(var i = 0; i < dataStructures.length; i++){
+  //     if(dataStructures[i] == 1){
+  //       switch(i){
+  //         case 0:
+  //           drawTree(_width / 2, _width / 11, BSTree.root);
+  //           break;
+  //         case 1:
+  //           drawTree(_width / 2, _width / 11, AVLTree.root);
+  //           break;
+  //         case 2:
+  //           //Draw Red Black Tree
+  //           break;
+  //         case 3:
+  //           //Draw Red Black Tree
+  //           break;
+  //       }
+  //     }
+  //   }
+  // }
 }
 
 function createDiv(theP5, elements){
