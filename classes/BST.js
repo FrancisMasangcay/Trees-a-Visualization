@@ -62,9 +62,9 @@ class BST{
     else if(val < node.getValue()){ //value is less than node
       _package = this.findRecur(val, node.getLChild(), node);
     }
-    else //value greater than node
+    else{ //value greater than node
       _package = this.findRecur(val, node.getRChild(), node);
-    
+    }
     return _package;
   }
 

@@ -1,5 +1,3 @@
-//TO DO upload working AVL code to github
-
 import BST from "./BST.js";
 
 class AVL extends BST{
@@ -126,14 +124,6 @@ class AVL extends BST{
     return result;
   }
   
-  find(val){
-    return super.find(val);
-  }
-
-  findRecur(val, node, parent){
-    return super.findRecur(val, node, parent);
-  }
-
   predecessor(node, parent){
     return super.predecessor(node, parent);
   }
