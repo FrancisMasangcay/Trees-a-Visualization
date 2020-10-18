@@ -24,7 +24,7 @@ class BST{
         //create new node and set child to the new node
         let child = new treeNode(value);
         entryNode.setLChild(child);
-        return false;
+        return false; //was not a duplicate
       }
       else{ //left child exists
         duplicate = this.insertRecur(value, entryNode.getLChild(), entryNode);
@@ -36,7 +36,7 @@ class BST{
         //create new node and set child to the new node
         let child = new treeNode(value);
         entryNode.setRChild(child);
-        return false;
+        return false; //was not a duplicate
       }
       else{
         duplicate = this.insertRecur(value, entryNode.getRChild(), entryNode);

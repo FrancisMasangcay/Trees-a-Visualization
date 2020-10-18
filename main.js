@@ -1,9 +1,7 @@
-//TO DO add RB tree functionality
-//TO DO write notes on AVL and BST parts of project
-
 import AVL from "./classes/AVL.js";
 import BST from "./classes/BST.js";
 import MinHeap from "./classes/Heap.js";
+import RB from "./classes/RedBlack.js";
 
 //get document nodes and attributes
 const s = document.getElementById("p5-sketch");
@@ -15,7 +13,7 @@ const nodeDia = _width / 25;
 var AVLTree = new AVL();
 var BSTree = new BST();
 var Heap = new MinHeap();
-
+var RedBlack = new RB();
 
 /**
  * Array to track structure selections numbers indicate
@@ -49,10 +47,9 @@ const drawStructures = (c) => {
             drawTree(_width / 2, _width / 11, AVLTree.root);
             break;
           case 2:
-            //Draw Red Black Tree
+            drawTree(_width / 2, _width / 11, RedBlack.root, true);
             break;
           case 3:
-            //Draw Heap Tree
             drawTree(_width / 2, _width / 11, Heap.root);
             break;
         }
@@ -188,7 +185,7 @@ function insert(inputField){
             AVLTree.insert(value);
             break;
           case 2:
-            //RedBlack Tree insert
+            RedBlack.insert(value);
             break;
           case 3:
             Heap.insert(value);
@@ -214,7 +211,7 @@ function _delete(inputField){
             AVLTree.delete(value);
             break;
           case 2:
-            //RedBlack Tree insert
+            RedBlack.delete(value);
             break;
           case 3:
             Heap.delete();
@@ -236,7 +233,7 @@ function _delete(inputField){
  * params: x -> x coordinate for the draw
  *         y -> y coordinate for the draw
  */
-function drawTree(x, y, node){
+function drawTree(x, y, node, isRB = false){
   if(node == null ){return;} //base case
   let rad = nodeDia / 2;
 
@@ -246,8 +243,9 @@ function drawTree(x, y, node){
   
   if(node.getLChild() != null){
     structure.strokeWeight(3);
+    structure.stroke('black');
     structure.line(x, y, x2, y2);
-    drawTree(x2, y2, node.getLChild()); //draw child node
+    drawTree(x2, y2, node.getLChild(), isRB); //draw child node
   }
 
   if(node.getRChild() != null){
@@ -255,21 +253,25 @@ function drawTree(x, y, node){
     x2 = node.rWidth() * nodeDia + x;
     y2 =  y + nodeDia;
     structure.strokeWeight(3);
+    structure.stroke('black');
     structure.line(x, y, x2, y2);
 
-    drawTree(x2, y2, node.getRChild());
+    drawTree(x2, y2, node.getRChild(), isRB);
   }
-  if(node.selected)
-    structure.stroke('red');
-  else  
-    structure.stroke('black');
 
   structure.strokeWeight(3);
+  structure.stroke('black');
   structure.fill("#94f3e0");
+  if(isRB)
+    (node.red == 1) ? structure.fill('red') : structure.fill('black');
   structure.circle(x, y, nodeDia); //draw node so it is atop edge
   //draw node value
   structure.strokeWeight(1);
   structure.fill('black');
+  if(isRB){
+    (node.red == 1) ? structure.fill('black') : structure.fill('white');
+    (node.red == 1) ? structure.stroke('black') : structure.stroke('white');
+  }
   structure.textAlign(structure.CENTER, structure.CENTER);
   structure.textSize(rad / 2);
   structure.text(node.getValue(), x - rad/2, y, rad);
