@@ -57,6 +57,8 @@ class Heap{
   }
 
   delete(){
+    if(this.heap.length == 0) //heap is empty
+      return;
     let r = this.heap[0];
     let index = this.heap.length - 1; //node to be moved up to root
     let parent = Math.floor((index - 1) / 2); //parent nodes index in the array
@@ -64,12 +66,14 @@ class Heap{
     let leaf = this.heap[index]; //value of node to be moved up to root
 
     //delete greatest left subtree leaf node
+    if(this.heap.length == 1){//tree is only root
+      this.root = null; //delete the root node
+      return this.heap.pop();
+    }
     if(pNode.lChild && pNode.lChild.val == leaf)
       pNode.lChild = null;
     else if(pNode.rChild && pNode.rChild.val == leaf)
       pNode.rChild = null;
-    else
-      console.log("Error: failed to delete a node");
     
     //update root node
     this.root.val = leaf;
