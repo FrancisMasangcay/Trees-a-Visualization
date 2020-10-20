@@ -1,4 +1,3 @@
-//TO DO implement delete
 import TreeNode from "./TreeNode.js";
 
 class RBnode extends TreeNode{
@@ -36,10 +35,52 @@ class RedBlack{
   }
 
   delete(val){
-    //if node to be deleted is red, just delete it (replace value dont move nodes around)
-      //inorder predecessor is taken and this will be the deleted node.
-    //problem occurrs when you delete a black node
-    //steps: 1. perfomr normal bst deletion
+    let isRoot = false;
+    //find the node
+    let node = this.root;
+    while(true){
+      if(!node || node.val == val)
+        break;
+      else if(val < node.val)
+        node = node.lChild;
+      else
+        node = node.rChild;
+    }
+
+    if(!node) return; //val not found
+    
+    let pred = this.pred(node);//find predecessor
+    node.val = pred.val; //update node value to the predeccessor's
+    node = pred; //update node to track the predecessor
+
+    //in case predecessor had a left subtree find the next predecessor until leaf
+    while(pred.lChild || pred.rChild){//break if pred is leaf
+      pred = this.pred(node); //get new predecessor
+      node.val = pred.val; //update node value to the predeccessor's
+      node = pred; //update node to track the predecessor
+    }
+    //do the delete and update relationships
+    if(pred == this.root){
+      isRoot = true;
+      if(!pred.rChild && !pred.lChild) //empty tree
+        this.root = null;
+    }
+    else if(pred.val > pred.parent.val){//predecessor is right child
+      //update relationships
+      pred.parent.rChild = pred.lChild;
+      if(pred.parent.lChild)
+        pred.parent.lChild.sibling = pred.lChild;
+    }
+    else{//predecessor is left child
+      //update relationships
+      pred.parent.lChild = pred.lChild;
+      if(pred.parent.rChild)
+        pred.parent.rChild.sibling = pred.lChild;
+    }
+    if(pred.black == 1 && !isRoot){ //pred was a black node
+      pred.black++;
+      this.fixDB(pred);//predecessor is now a double black node
+    }
   }
 
   bstInsert(val, node = this.root){
@@ -147,14 +188,10 @@ class RedBlack{
       temp.parent = node;
     }
     //subroot.right
-    subroot.rChild.sibling = subroot.lChild;
+    if(subroot.rChild)
+      subroot.rChild.sibling = subroot.lChild;
     //subroot
     subroot.parent = node.parent;
-    // if(node.val > node.parent.val) //node was right child
-    //   subroot.parent.rChild = subroot;
-    // else
-    //   subroot.parent.lChild = subroot;
-    //node
     node.parent = subroot;
     node.sibling = subroot.rChild;
 
@@ -174,18 +211,186 @@ class RedBlack{
       temp.parent = node;
     }
     //subroot.left
-    subroot.lChild.sibling = subroot.rChild;
+    if(subroot.lChild)
+      subroot.lChild.sibling = subroot.rChild;
     //subroot
     subroot.parent = node.parent;
-    // if(node.val > node.parent.val) //node was right child
-    //   subroot.parent.rChild = subroot;
-    // else
-    //   subroot.parent.lChild = subroot;
-    //node
     node.parent = subroot;
     node.sibling = subroot.lChild;
 
     return subroot;
+  }
+
+  //utility function to find inorder predecessor of node
+  pred(node){
+    //if node exists, find the inorder predecessor
+    if(node){
+      var pred = node.lChild;
+      while(true){
+        if(pred && pred.rChild)
+          pred = pred.rChild;
+        else
+          break;
+      }
+    }
+    if(pred)
+      return pred;
+    else
+      return node;
+  }
+
+  //utility function to fix double black node situations
+  //parameter pred is a RBnode representiing the predecessor node from delete
+  //that will be removed from the tree
+  //if there is still a DB then will recall itself to fix DB
+  fixDB(node){
+    let subroot; //will track the new root of a subtree after a pivot is done
+    //is the parent the root node?
+    let isRoot;
+    (node.parent == this.root) ? isRoot = true : isRoot = false;
+  
+
+    let grand = node.parent.parent;
+
+    //track which child this node is to parent
+    let left = false;
+    if(node.val < node.parent.val)
+      left = true;
+
+    //if sibling children are both black nephewsB = true, otherwise false
+    let nephewsB = false;
+    if((!node.sibling.lChild) || (node.sibling.lChild.black == 1))
+      if((!node.sibling.rChild) || (node.sibling.rChild.black == 1))
+        nephewsB = true;
+    
+    if(this.root.black == 2){ //root became double black
+      this.root.black--; //remove the double black
+      return;
+    }
+    else if(node.sibling.black == 1 && nephewsB){//sibling + nephews are black nodes 
+      node.black--; //remove doble black from node
+      //add black to parent
+      node.parent.black++;
+      if(node.parent.red == 1)
+        node.parent.red = 0;
+      node.sibling.recolor();
+      if(node.parent.black > 1)//DB still exists
+        this.fixDB(node.parent);
+    }
+    else if(node.sibling.red == 1){//sibling is red
+      //swap parent and siblings colors
+      let temp1 = node.parent.red;
+      let temp2 = node.parent.black;
+      node.parent.red = node.sibling.red;
+      node.parent.black = node.sibling.black;
+      node.sibling.red = temp1;
+      node.sibling.black = temp2;
+      
+      if(node.val < node.parent.val){//is left child, do a left rotate
+        subroot = this.pivotL(node.parent);
+        node.sibling = node.parent.rChild;
+        if(isRoot)
+          this.root = subroot;
+        else if(node.parent.val < grand.val) //parent is lChild of grand
+          grand.lChild = subroot;
+        else
+          grand.rChild = subroot;
+      }
+      else{//is right child, do a right rotate
+        subroot = this.pivotR(node.parent);
+        node.sibling = node.parent.lChild;
+        if(isRoot)
+          this.root = subroot;
+        else if(node.parent.val < grand.val) //parent is lChild of grand
+          grand.lChild = subroot;
+        else
+          grand.rChild = subroot;
+      }
+      this.fixDB(node);
+    }
+    //sibling is black but nephews are not both black
+    else if(left){//node is left child of parent
+      let temp1 = node.sibling.red;
+      let temp2 = node.sibling.black;
+      //case 5 near nephew is red
+      if(node.sibling.lChild.red == 1 && node.sibling.rChild.black == 1){
+        //swap sibling and near nephew colors
+        node.sibling.red = node.sibling.lChild.red;
+        node.sibling.black = node.sibling.lChild.black;
+
+        node.sibling.lChild.red = temp1;
+        node.sibling.lChild.black = temp2;
+
+        //do a right rotation away from node
+        subroot = this.pivotR(node.sibling);
+        node.parent.rChild = subroot;
+
+        this.fixDB(node); //recheck cases
+      }
+      //case 6 far nephew is red
+      else if(node.sibling.rChild.red == 1){
+        //swap parent and siblings colors
+        let t1 = node.parent.red;
+        let t2 = node.parent.black;
+        node.parent.red = node.sibling.red;
+        node.parent.black = node.sibling.black;
+        node.sibling.red = t1;
+        node.sibling.black = t2;
+
+        //do a rotation based on node parent towards node
+        subroot = this.pivotL(node.parent);
+        if(isRoot)
+          this.root = subroot;
+        else if(node.parent.val < grand.val) //parent is lChild of grand
+          grand.lChild = subroot;
+        else
+          grand.rChild = subroot;
+
+        //change red node to black
+        node.sibling.rChild.recolor();
+      }
+    }
+    else if(!left){//node is right child of parent
+      //case 5 near nephew is red
+      let temp1 = node.sibling.red;
+      let temp2 = node.sibling.black;
+      if(node.sibling.rChild.red == 1 && node.sibling.lChild.black == 1){
+        //swap sibling and near nephew colors
+        node.sibling.red = node.sibling.lChild.red;
+        node.sibling.black = node.sibling.lChild.black;
+
+        node.sibling.rChild.red = temp1;
+        node.sibling.rChild.black = temp2;
+
+        //do a left rotation away from node
+        subroot = this.pivotL(node.sibling);
+        node.parent.lChild = subroot;
+
+        this.fixDB(node); //recheck cases
+      }
+      //case 6 far nephew is red
+      else if(node.sibling.lChild.red == 1){
+        //swap parent and siblings colors
+        let temp1 = node.parent.red;
+        let temp2 = node.parent.black;
+        node.parent.red = node.sibling.red;
+        node.parent.black = node.sibling.black;
+        node.sibling.red = temp1;
+        node.sibling.black = temp2;
+
+        //do a rotation based on node parent towards node
+        subroot = this.pivotR(node.parent);
+        if(isRoot)
+          this.root = subroot;
+        else if(node.parent.val < grand.val) //parent is lChild of grand
+          grand.lChild = subroot;
+        else
+          grand.rChild = subroot;
+
+        //change red node to black
+        node.sibling.lChild.recolor();
+      }
+    }
   }
 }
 export default RedBlack;
