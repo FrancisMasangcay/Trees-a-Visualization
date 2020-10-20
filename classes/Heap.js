@@ -134,7 +134,7 @@ class Heap{
     //find the minimum of the two children
     let minIndex;
     let min;
-    if(left < right){
+    if(left < right || !right){
       min = left;
       minIndex = leftInd; 
     }
